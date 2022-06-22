@@ -1,0 +1,5 @@
+@include('front/includes/head')
+
+<div style="text-align: center;">
+    <img src="https://image.freepik.com/free-vector/construction-set-icons_24877-60028.jpg">
+</div>
