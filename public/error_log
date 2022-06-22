@@ -1,0 +1,1 @@
+[03-Feb-2022 13:51:48 UTC] PHP Fatal error:  Allowed memory size of 536870912 bytes exhausted (tried to allocate 407138304 bytes) in /home/v8fouej71xhy/public_html/app/Http/Controllers/Api/LeadController.php on line 249
