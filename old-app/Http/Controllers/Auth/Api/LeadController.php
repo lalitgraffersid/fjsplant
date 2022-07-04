@@ -45,11 +45,11 @@ class LeadController extends Controller
         }
 
         $leads = Lead::where('user_id',$request->user_id)
-                        ->where(function($query) {
-                            return $query->where('status','New')
-                                        ->orWhere('status','In Progress')
-                                        ->orWhere('status','On Hold');
-                        })
+                        // ->where(function($query) {
+                        //     return $query->where('status','New')
+                        //                 ->orWhere('status','In Progress')
+                        //                 ->orWhere('status','On Hold');
+                        // })
                         ->orderBy('id','DESC')
                         ->get();
 
@@ -244,16 +244,9 @@ class LeadController extends Controller
     /*Get Customers*/
     public function getCustomers(Request $request)
     {
-       // $data = Customer::join('leads','customers.id','=','leads.customer_id')
-                           // ->select('customers.*','leads.title as lead_title','leads.name as lead_name','leads.id as lead_id')
-			               //->get();
-		
-		
-		$data = Customer::select('customers.*','leads.title as lead_title','leads.name as lead_name','leads.id as lead_id')
-        // join('leads','customers.id','=','leads.customer_id')
-        ->leftJoin("leads", "leads.customer_id", "=", "customers.id")
-			->groupBy('name')
-         ->get();
+        $data = Customer::join('leads','customers.id','=','leads.customer_id')
+                            ->select('customers.*','leads.title as lead_title','leads.name as lead_name','leads.id as lead_id')
+                            ->get();
         if(count($data)>0){
             return response()->json(array(
                         'status' => 200,
@@ -268,77 +261,5 @@ class LeadController extends Controller
                         'error_message'=>'No data found!'
                     ),200);
         }
-    }
-    public function detailSalesCall(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'user_id' => 'required',
-            'sales_id' => 'required'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(array(
-                                        'status' => 400,
-                                        'message'=> 'Error',
-                                        'error_message'=>$validator->errors()
-                                    ),200);
-        }
-
-        $lead = Lead::where('user_id',$request->user_id)->where('id',$request->sales_id)
-                        ->orderBy('id','DESC')
-                        ->first();
-
-            $data[] = [
-                'id' => $lead->id,
-                'user_id' => $lead->user_id,
-                'title' => $lead->title,
-                'name' => $lead->name,
-                'email' => $lead->email,
-                'phone' => $lead->phone,
-                'address' => $lead->address,
-                'message' => $lead->message,
-                'status' => $lead->status,
-            ];
-
-        if (count($data)>0) {
-            return response()->json(array(
-                        'status' => 200,
-                        'message'=> 'Success',
-                        'success_message'=>'Data found.',
-                        'data' => $data,
-                    ),200);
-        }else{
-            return response()->json(array(
-                        'status' => 400,
-                        'message'=> 'Error',
-                        'error_message'=>'No data found!'
-                    ),200);
-        }
-    }
-    public function completeSalesCall(Request $request)
-    {
-         $validator = Validator::make($request->all(), [
-            'sales_id' => 'required'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(array(
-                                        'status' => 400,
-                                        'message'=> 'Error',
-                                        'error_message'=>$validator->errors()
-                                    ),200);
-        }
-        $lead = Lead::find($request->sales_id);
-
-        $lead->status = 'Closed';
-        $lead->save();
-
-        return response()->json(array(
-                        'status' => 200,
-                        'message'=> 'Success',
-                        'success_message'=>'Lead Completed.',
-                        'data' => $lead,
-                    ),200);
-
     }
 }

@@ -244,16 +244,9 @@ class LeadController extends Controller
     /*Get Customers*/
     public function getCustomers(Request $request)
     {
-       // $data = Customer::join('leads','customers.id','=','leads.customer_id')
-                           // ->select('customers.*','leads.title as lead_title','leads.name as lead_name','leads.id as lead_id')
-			               //->get();
-		
-		
-		$data = Customer::select('customers.*','leads.title as lead_title','leads.name as lead_name','leads.id as lead_id')
-        // join('leads','customers.id','=','leads.customer_id')
-        ->leftJoin("leads", "leads.customer_id", "=", "customers.id")
-			->groupBy('name')
-         ->get();
+        $data = Customer::join('leads','customers.id','=','leads.customer_id')
+                            ->select('customers.*','leads.title as lead_title','leads.name as lead_name','leads.id as lead_id')
+                            ->get();
         if(count($data)>0){
             return response()->json(array(
                         'status' => 200,
