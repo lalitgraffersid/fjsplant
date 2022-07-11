@@ -162,6 +162,9 @@
                                  $productExtraData = DB::table('product_extra_info')->where('product_id',$quoteProduct->id)->where('quote_id',$result->quote_id)->first();
 
                                  $product = DB::table('products')->where('id',$result->product_id)->first();
+							   
+							     $product_extra = DB::table('product_extra_info')->where('product_id',$result->product_id)->first();
+
                                  $product_image = DB::table('product_images')->where('product_id',$result->product_id)->first();
                               ?>
                               <tr class="row1" id="row1" data-id="{{ $result->id }}">
@@ -176,23 +179,23 @@
                                  <td>{{$customer->name}}</td>
                                  <td>{{$result->id}}</td>
                                  <td>
-                                    @if(!empty($productExtraData->depot))
-                                       {{$productExtraData->depot}}
+                                    @if(!empty($product_extra->depot))
+                                       {{$product_extra->depot}}
                                     @endif
                                  </td>
                                  <td>
-                                    @if(!empty($productExtraData->hitch))
-                                       {{$productExtraData->hitch}}
+                                    @if(!empty($product_extra->hitch))
+                                       {{$product_extra->hitch}}
                                     @endif
                                  </td>
                                  <td>
-                                    @if(!empty($productExtraData->buckets))
-                                       {{$productExtraData->buckets}}
+                                    @if(!empty($product_extra->buckets))
+                                       {{$product_extra->buckets}}
                                     @endif
                                  </td>
                                  <td>
-                                    @if(!empty($productExtraData->extra))
-                                       {{$productExtraData->extra}}
+                                    @if(!empty($product_extra->extra))
+                                       {{$product_extra->extra}}
                                     @endif
                                  </td>
                                  <td>

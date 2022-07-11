@@ -88,6 +88,7 @@
                               <option value="In Progress">In Progress</option>
                               <option value="On Hold">On Hold</option>
                               <option value="Lost">Lost</option>
+							  <option value="Quote Send">Quote Send</option>
                               <option value="Closed">Closed</option>
                            </select>
                         </div>

@@ -62,41 +62,93 @@
                <a href="{{route('admin.dashboard')}}" class="nav-link <?php if($current_route == 'admin.dashboard'){echo 'active';} ?>"><i class="nav-icon fas fa-tachometer-alt"></i><p>
                 Dashboard</p></a>
             </li>
+            <li class="nav-item has-treeview">
+               <a href="{{route('users.index')}}" class="nav-link <?php if($current_route == 'users.index') ?>"><i class="nav-icon fas fa-tachometer-alt"></i><p>
+                Users</p></a>
+            </li>
 
-            <!-- <li class="nav-item <?php if($current_route == 'actions.index' || $current_route == 'sections.index' || $current_route == 'roles.index' || $current_route == 'actions.add' || $current_route == 'actions.edit' || $current_route == 'sections.add' || $current_route == 'sections.edit' || $current_route == 'roles.add' || $current_route == 'roles.edit'){echo 'menu-open';} ?>">
-
-               <a href="#" class="nav-link <?php if($current_route == 'actions.index' || $current_route == 'sections.index' || $current_route == 'roles.index' || $current_route == 'actions.add' || $current_route == 'actions.edit' || $current_route == 'sections.add' || $current_route == 'sections.edit' || $current_route == 'roles.add' || $current_route == 'roles.edit'){echo 'active';} ?>">
-                  <i class="nav-icon fas fa-copy"></i>
-                  <p>Modules<i class="fas fa-angle-left right"></i></p>
-               </a>
-
-               <ul class="nav nav-treeview">
+            <li class="nav-item has-treeview">
+               <a href="#" class="nav-link"><i class="nav-icon fas fa-tachometer-alt"></i><p>
+                Product Managment</p> <i class="fas fa-angle-left right"></i></a>
+                <ul class="nav nav-treeview">
                   <li class="nav-item">
-                     <a href="{{ url('/admin/actions/index')}}" class="nav-link <?php if($current_route == 'actions.index' || $current_route == 'actions.add' || $current_route == 'actions.edit'){echo 'active';} ?>">
-                        <i class="far fa-circle nav-icon"></i>
-                        <p>Actions</p>
-                     </a>
+                  <a href="{{route('categories.index')}}" class="nav-link <?php if($current_route == 'categories.index') ?>"><i class="fas fa-chevron-right"></i><p>
+                  Categories</p></a>
                   </li>
                </ul>
                <ul class="nav nav-treeview">
                   <li class="nav-item">
-                     <a href="{{ url('/admin/sections/index')}}" class="nav-link <?php if($current_route == 'sections.index' || $current_route == 'sections.add' || $current_route == 'sections.edit'){echo 'active';} ?>">
-                        <i class="far fa-circle nav-icon"></i>
-                        <p>Sections</p>
-                     </a>
+                  <a href="{{route('dealers.index')}}" class="nav-link <?php if($current_route == 'dealers.index') ?>"><i class="fas fa-chevron-right"></i><p>
+                                    Dealers</p></a>
                   </li>
                </ul>
                <ul class="nav nav-treeview">
                   <li class="nav-item">
-                     <a href="{{ url('/admin/roles/index')}}" class="nav-link <?php if($current_route == 'roles.index' || $current_route == 'roles.add' || $current_route == 'roles.edit'){echo 'active';} ?>">
-                        <i class="far fa-circle nav-icon"></i>
-                        <p>Roles</p>
-                     </a>
+                  <a href="{{route('products.index')}}" class="nav-link <?php if($current_route == 'products.index') ?>"><i class="fas fa-chevron-right"></i><p>
+                  Products</p></a>
                   </li>
                </ul>
-            </li> -->
-            
-            @foreach($sections as $section)
+            </li>
+
+            <li class="nav-item has-treeview">
+               <a href="#" class="nav-link"><i class="nav-icon fas fa-tachometer-alt"></i><p>
+                Lead Managment</p><i class="fas fa-angle-left right"></i></a>
+                <ul class="nav nav-treeview">
+                  <li class="nav-item">
+                  <a href="{{route('customers.index')}}" class="nav-link <?php if($current_route == 'customers.index') ?>"><i class="fas fa-chevron-right"></i><p>
+                  Customers</p></a>
+                  </li>
+               </ul>
+               <ul class="nav nav-treeview">
+                  <li class="nav-item">
+                  <a href="{{route('leads.index')}}" class="nav-link <?php if($current_route == 'leads.index') ?>"><i class="fas fa-chevron-right"></i><p>
+                  Leads</p></a>
+                  </li>
+               </ul>
+               <ul class="nav nav-treeview">
+                  <li class="nav-item">
+                  <a href="{{route('quotes.index')}}" class="nav-link <?php if($current_route == 'quotes.index') ?>"><i class="fas fa-chevron-right"></i><p>
+                  Quotes</p></a>
+                  </li>
+               </ul>
+               <ul class="nav nav-treeview">
+                  <li class="nav-item">
+                  <a href="{{route('sales_order.index')}}" class="nav-link <?php if($current_route == 'sales_order.index') ?>"><i class="fas fa-chevron-right"></i><p>
+                  Sales Orders</p></a>
+                  </li>
+               </ul>
+               <ul class="nav nav-treeview">
+                  <li class="nav-item">
+                  <a href="{{route('trade_in.index')}}" class="nav-link <?php if($current_route == 'trade_in.index') ?>"><i class="fas fa-chevron-right"></i><p>
+                  Trade In</p></a>
+                  </li>
+               </ul>
+            </li>
+            <li class="nav-item has-treeview">
+               <a href="#" class="nav-link"><i class="nav-icon fas fa-tachometer-alt"></i><p>
+               Reports</p>
+               <i class="fas fa-angle-left right"></i></a>
+                <ul class="nav nav-treeview">
+                  <li class="nav-item">
+                  <a href="{{route('sales_calls_report.index')}}" class="nav-link <?php if($current_route == 'sales_calls_report.index') ?>"><i class="fas fa-chevron-right"></i><p>
+                  Sales Calls Reports</p></a>
+                  </li>
+               </ul>
+               <ul class="nav nav-treeview">
+                  <li class="nav-item">
+                  <a href="{{route('sales_order_report.index')}}" class="nav-link <?php if($current_route == 'sales_order_report.index') ?>"><i class="fas fa-chevron-right"></i><p>
+                  Sales Order</p></a>
+                  </li>
+               </ul>
+               <ul class="nav nav-treeview">
+                  <li class="nav-item">
+                  <a href="{{route('stock_report.index')}}" class="nav-link <?php if($current_route == 'stock_report.index') ?>"><i class="fas fa-chevron-right"></i><p>
+                  Stocks Reports</p></a>
+                  </li>
+               </ul>
+            </li>
+            <!-- old menu code -->
+            <!-- @foreach($sections as $section)
                <?php 
                $getRoleSection = App\Helpers\AdminHelper::getRoleSection(Auth::user()->id,$section->id);
                if (Auth::user()->user_type == 'admin' || !empty(array_filter($getRoleSection)) > 0) { ?>
@@ -130,7 +182,7 @@
 
                   </li>
                <?php } ?>
-            @endforeach   
+            @endforeach    -->
 
          </ul>
       </nav>

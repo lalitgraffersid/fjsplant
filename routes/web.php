@@ -59,7 +59,10 @@ Route::get('mail_test', function () {
 Auth::routes();
 
 
-
+Route::get('mail_test', function () {
+    \Mail::raw('Hello World fjs!', function($msg) {$msg->to('jaiswallalit21@gmail.com')->subject('Test Email'); });
+          dd('mail send');
+});
 
 Route::get('/clear-cache', function () {
     Artisan::call('cache:clear');

@@ -25,61 +25,86 @@ use Response;
 
 class TradeInController extends Controller
 {
+
+
     /*Create Trade in with quote*/
     public function saveTradeIn(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'quote_id' => 'required',
-            'make' => 'required',
-            'model' => 'required',
-            'year' => 'required',
-            'hours' => 'required',
-        ]);
-        if ($validator->fails()) { 
-            return response()->json(array(
-                                        'status' => 400,
-                                        'message'=> 'Error',
-                                        'error_message'=>$validator->errors()
-                                    ),200);
-        } else {
-            $data = new TradeIn;
-            //=========================================================
-            $data->quote_id = $request->quote_id;
-            $data->make = $request->make;
-            $data->model = $request->model;
-            $data->year = $request->year;
-            $data->hours = $request->hours;
-            if ($data->save()) {
-                if ($request->hasFile('image')) {
-                    $image = $request->file('image');
-                     $imagename = rand('1111','9999').'_'.time().'.'.$image->getClientOriginalExtension();
-                    $destinationPath = public_path('/admin/clip-one/assets/trade_images');
-                    $image->move($destinationPath, $imagename);
+        try {
+                $validator = Validator::make($request->all(), [
+                'quote_id' => 'required',
+                'make' => 'required',
+                'model' => 'required',
+                'year' => 'required',
+                'hours' => 'required',
+				//'trade_image' =>  'required',
+            ]);
+            if ($validator->fails()) {
+                return response()->json(array(
+                    'status' => 400,
+                    'message' => 'Error',
+                    'error_message' => $validator->errors()
+                ), 200);
+            } else {
 
-                    $source_url = public_path().'/admin/clip-one/assets/trade_images/'.$imagename;
-                    $destination_url = public_path().'/admin/clip-one/assets/trade_images/'.$imagename;
-                    $quality = 40;
+                $idtrd = DB::select('select * from trade_ins where quote_id = ? ', [$request->quote_id]);
+                $data= [];
+                if (empty($idtrd)) {
 
-                    AdminHelper::compress_image($source_url, $destination_url, $quality);
+                    $data = new TradeIn;
+                    //=========================================================
+                    $data->quote_id = $request->quote_id;
+                    $data->make = $request->make;
+                    $data->model = $request->model;
+                    $data->year = $request->year;
+                    $data->hours = $request->hours;
+                    if ($data->save()) {
+                        if ($request->hasFile('image')) {
+                            $image = $request->file('image');
+                            $imagename = rand('1111', '9999') . '_' . time() . '_' . $image->getClientOriginalExtension();
+                            $destinationPath = public_path('/admin/clip-one/assets/trade_images');
+                            $image->move($destinationPath, $imagename);
 
-                    $trade_image = new TradeImage;
-                    $trade_image->trade_id = $data->id;
-                    $trade_image->image = $imagename;
-                    $trade_image->save();
+                            $source_url = public_path() . '/admin/clip-one/assets/trade_images/' . $imagename;
+                            $destination_url = public_path() . '/admin/clip-one/assets/trade_images/' . $imagename;
+                            $quality = 40;
+
+                            AdminHelper::compress_image($source_url, $destination_url, $quality);
+
+                            $trade_image = new TradeImage;
+                            $trade_image->trade_id = $data->id;
+                            $trade_image->image = $imagename;
+                            $trade_image->save();
+                        }
+                    }
+                    return response()->json(array(
+                        'status' => 200,
+                        'message'=> 'Success',
+                        'success_message'=>'Trade in Inserted successfully.',
+                        'data' => $data,
+                    ),200); 
+                } 
+                else {
+                    DB::table('trade_ins')->where('quote_id', $request->quote_id)
+                    ->update(array(
+                        
+                        'make' =>  $request->make,
+                        'model' => $request->model,
+                        'year' => $request->year,
+                        'hours' => $request->hours
+                    ));
+                    return response()->json(array(
+                        'status' => 200,
+                        'message'=> 'Success',
+                        'success_message'=>'Trade in Update successfully.',
+                        'data' => $data,
+                    ),200);
                 }
-                return response()->json(array(
-                                            'status' => 200,
-                                            'message'=> 'Success',
-                                            'success_message'=>'Trade in submitted successfully.',
-                                            'data' => $data,
-                                        ),200);
-            }else{
-                return response()->json(array(
-                                            'status' => 400,
-                                            'message'=> 'Error',
-                                            'error_message'=>'Something went wrong!'
-                                        ),200);
-            }
+            }  
+        } 
+        catch (\Exception $e) {
+            return $e->getMessage();
         }
     }
+// Method End
 }

@@ -58,13 +58,13 @@
               <div class="ftr-box">
                 <h6>Brands</h6>
                 <ul class="ftr-links">
-                    <li><a href="https://fjsplant.com/brand/KUBOTA">KUBOTA</a></li>
-                    <li><a href="https://fjsplant.com/brand/Liugong">Liugong</a></li>
-                    <li><a href="https://fjsplant.com/brand/FRD">FRD</a></li>
-                    <li><a href="https://fjsplant.com/brand/Evoquip">Evoquip</a></li>
-                    <li><a href="https://fjsplant.com/brand/NC">NC</a></li>
-                    <li><a href="https://fjsplant.com/brand/Robi">Robi</a></li>
-                    <li><a href="https://fjsplant.com/brand/DRESSTA">DRESSTA</a></li>
+                    <li><a href="https://new.fjsplant.com/brand/KUBOTA">KUBOTA</a></li>
+                    <li><a href="https://new.fjsplant.com/brand/Liugong">Liugong</a></li>
+                    <li><a href="https://new.fjsplant.com/brand/FRD">FRD</a></li>
+                    <li><a href="https://new.fjsplant.com/brand/Evoquip">Evoquip</a></li>
+                    <li><a href="https://new.fjsplant.com/brand/NC">NC</a></li>
+                    <li><a href="https://new.fjsplant.com/brand/Robi">Robi</a></li>
+                    <li><a href="https://new.fjsplant.com/brand/DRESSTA">DRESSTA</a></li>
 
                   <!--@foreach($categories as $category)-->
                   <!--  <li><a href="{{route('productsByCategory',$category->id)}}">{{$category->name}}</a></li>-->

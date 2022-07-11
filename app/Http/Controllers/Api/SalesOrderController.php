@@ -76,6 +76,7 @@ class SalesOrderController extends Controller
     /*Create sale order*/
     public function createSalesOrder(Request $request)
     {
+		 try {
         $validator = Validator::make($request->all(), [
             'quote_id' => 'required',
         ]);
@@ -109,6 +110,7 @@ class SalesOrderController extends Controller
                 $data->message = $request->message;
                 $data->serial_number = $serial_number;
                 $data->date = date('Y-m-d');
+				
                 $data->save();
             }
 
@@ -136,7 +138,14 @@ class SalesOrderController extends Controller
                                         'data' => $data,
                                     ),200);
         }
+		 }
+			 catch (\Exception $e) {
+        dd($e->getMessage());die;
     }
+    }
+		
+		    /*filterSalesOrder sale order*/
+
    public function filterSalesOrder(Request $request)
     {
        $query = SalesOrder::join('products','sales_orders.product_id','=','products.id')

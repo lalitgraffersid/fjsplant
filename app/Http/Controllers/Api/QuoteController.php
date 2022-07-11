@@ -42,7 +42,7 @@ class QuoteController extends Controller
         $validator = Validator::make($request->all(), [
             //'product_id' => 'required',
             //'quantity' => 'required',
-            'lead_id' => 'required',
+           // 'lead_id' => 'required',
         ]);
         if ($validator->fails()) { 
             return response()->json(array(
@@ -58,6 +58,19 @@ class QuoteController extends Controller
             $data->price = $request->price;
             $data->customer_id = $request->customer_id;
             $data->date = date('Y-m-d');
+
+            $newLead = new Lead;
+            $newLead->title = $request->title;
+            $newLead->customer_id = $request->customer_id;
+            $newLead->email = $request->email;
+            $newLead->name = $request->name;
+            $newLead->phone = $request->phone;
+            $newLead->address = $request->address;
+            $newLead->date = date('Y-m-d');
+            $newLead->status = 'In Progress';
+            $newLead->message = $request->message;
+            $newLead->user_id = $request->user_id;
+            $newLead->save();
 
             if ($data->save()) {
                 $newQtProduct = new QuoteProduct;
@@ -103,13 +116,25 @@ class QuoteController extends Controller
                                         'error_message'=>$validator->errors()
                                     ),200);
         } else {
-            $customerData = new Customer;
-            $customerData->name = $request->name;
-            $customerData->address = $request->address;
-            $customerData->save();
+           // $customerData = new Customer;
+           // $customerData->name = $request->name;
+            //$customerData->address = $request->address;
+            //$customerData->save();
 
+            // $newLead = new Lead;
+            // $newLead->title = $request->title;
+            // $newLead->name = $request->name;
+            // $newLead->phone = $request->phone;
+            // $newLead->address = $request->address;
+            // $newLead->date = date('Y-m-d');
+            // $newLead->status = 'In Progress';
+            // $newLead->message = $request->message;
+            // $newLead->user_id = $request->user_id;
+            // $newLead->save();
             $newLead = new Lead;
             $newLead->title = $request->title;
+            $newLead->customer_id = $request->customer_id;
+            $newLead->email = $request->email;
             $newLead->name = $request->name;
             $newLead->phone = $request->phone;
             $newLead->address = $request->address;
@@ -119,35 +144,37 @@ class QuoteController extends Controller
             $newLead->user_id = $request->user_id;
             $newLead->save();
 
-            // $product_array = json_decode($request->product_id);
-            // $quantity_array = json_decode($request->quantity);
-
-            // $price = 0;
-            // foreach ($product_array as $key => $value) {
-            //     $product = Product::where('id',$value)->first();
-            //     $price += $product->price * $quantity_array[$key]; 
-            // }
-
-            // $product_id = implode(',',json_decode($request->product_id));
-            // $quantity = implode(',',json_decode($request->quantity));
-
             $data = new Quote;
-            //=========================================================
-            // $data->product_id = $product_id;
-            // $data->quantity = $quantity;
+          
             $data->lead_id = $newLead->id;
-            $data->customer_id = $customerData->id;
+			$data->price = $request->price;
+            //$data->customer_id = $customerData->id;
+			$data->customer_id = $request->customer_id;
             $data->date = date('Y-m-d');
-            // $data->price = $price;
-
+            $data->save();
             if ($data->save()) {
+                $newQtProduct = new QuoteProduct;
+                
+                $newQtProduct->quote_id = $data->id;
+                $newQtProduct->product_id = $request->product_id;
+                $newQtProduct->price = $request->price;
+                $newQtProduct->quantity = $request->quantity;
+                $newQtProduct->total_price = $request->quantity * $request->price;
+                
+                $newQtProduct->save();
+            
                 return response()->json(array(
                                             'status' => 200,
                                             'message'=> 'Success',
                                             'success_message'=>'Quote created successfully.',
                                             'data' => $data,
                                         ),200);
-            }else{
+            }
+            
+            
+            
+            
+            else{
                 return response()->json(array(
                                             'status' => 400,
                                             'message'=> 'Error',
@@ -409,9 +436,10 @@ class QuoteController extends Controller
     }
 
 
-    /*Email Quotes*/
+    /*Email Quotes   this are submite form */  
     public function sendQuote(Request $request)
     {
+
         $validator = Validator::make($request->all(), [
             'quote_id' => 'required',
         ]);
@@ -424,6 +452,7 @@ class QuoteController extends Controller
         } else {
             $data = Quote::find($request->quote_id);
             $data->sent = '1';
+			 $data->price = $request->quote_price;
             $data->sent_on = date('Y-m-d');
             
             if(!empty($data->attachment)){
@@ -437,6 +466,29 @@ class QuoteController extends Controller
             $customer = Customer::where('id',$data->customer_id)->first();
             $products = QuoteProduct::where('quote_id',$request->quote_id)->get();
 
+			$idexist = DB::select('select * from product_extra_info where quote_id = ? ', [$request->quote_id]);
+
+            if (empty($idexist)) {
+                $info = new ExtraProductInfo;
+                $info->quote_id = $request->quote_id;
+                $info->product_id = $request->product_id;
+                $info->user_id = $request->user_id;
+                $info->depot = $request->quote_depot;
+                $info->hitch = $request->quote_hitch;
+                $info->buckets = $request->quote_bucket;
+                $info->extra = $request->quote_extra;
+                $info->save();
+            } else {
+                DB::table('product_extra_info')->where('quote_id', $request->quote_id)
+                ->update(array(
+                    'depot' =>  $request->quote_depot,
+                    'hitch' => $request->quote_hitch,
+                    'buckets' => $request->quote_bucket,
+                    'extra' => $request->quote_extra
+                ));  
+            }
+
+			
             if (!empty($data)) {
                 $leadData = Lead::find($data->lead_id);
                 $emailData = array(
@@ -468,6 +520,10 @@ class QuoteController extends Controller
                 }
                 
                 $data->save();
+				
+				//print_r($data->lead_id);
+				//die();
+				DB::update('update leads set status = ? where id = ?', ["Quote Sent", $data->lead_id]);
 
                 // if( count(Mail::failures()) > 0 ) {
                 //     echo "There was one or more failures. They were: <br />";
@@ -495,7 +551,9 @@ class QuoteController extends Controller
                                         ),200);
             }
         }
+		
     }
+	
     
     /*Download quote attachment*/
     public function downloadAttachment(Request $request)
@@ -650,27 +708,12 @@ class QuoteController extends Controller
                                         'error_message'=>$validator->errors()
                                     ),200);
         } 
-        //$query = Quote::join('leads','quotes.lead_id','=','leads.id')
-                      //  ->leftJoin('quote_products','quote_products.quote_id','=','quotes.id')
-                      ////  ->leftJoin('products','products.id','=','quote_products.product_id')
-                      //  ->leftJoin('dealers','products.dealer_id','=','dealers.id')
-                       //// ->leftJoin('categories','products.category_id','=','categories.id')
-                       // ->leftJoin('customers','quotes.customer_id','=','customers.id');
+    
 
+        $data = Lead::select('customers.*','leads.title as lead_title','leads.name as lead_name','leads.id as lead_id','quotes.id as quotes_id')
+        ->leftJoin("customers", "customers.id", "=", "leads.customer_id") 
+	    ->leftJoin("quotes", "quotes.lead_id", "=", "leads.id")                           
 
-
-                        // join('leads','quotes.lead_id','=','leads.id')
-                        // ->leftJoin('quote_products','quote_products.quote_id','=','quotes.id') 
-                        
-        // $quotes = $query->select('quotes.*','customers.name as customer_name','customers.email as customer_email','categories.name as category_name','dealers.name as dealer_name','products.dealer_id as dealer_id','products.title as product_title','products.attachment as product_attachment','products.model','dealers.name as dealer_name','leads.name','leads.email','leads.phone','leads.user_id','leads.date as lead_date','leads.status')
-        //                 ->where('leads.user_id',$request->user_id)
-        //                 ->where('quotes.sent','0')
-        //                 ->get();
-
-        $data = Lead::select('customers.*','leads.title as lead_title','leads.name as lead_name','leads.id as lead_id')
-        //->leftjoin('leads','leads.id','=','quotes.lead_id')
-        ->leftJoin("customers", "customers.id", "=", "leads.customer_id")                        
-       // ->where('customers.id',$request->user_id)
         ->where('leads.user_id',$request->user_id)
         
         ->where('leads.status','In Progress')
@@ -688,10 +731,12 @@ class QuoteController extends Controller
                                         'data' => $data,
                                     ),200);
     }
-    public function sentQuote(Request $request)
+	
+	 public function sentQuote(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'user_id' => 'required',
+			//'customer_id' => 'required',
         ]);
         if ($validator->fails()) { 
             return response()->json(array(
@@ -701,28 +746,60 @@ class QuoteController extends Controller
                                     ),200);
         } 
         
-        $query = Quote::join('leads','quotes.lead_id','=','leads.id')
-                        ->join('quote_products','quote_products.quote_id','=','quotes.id')
-                        ->join('products','products.id','=','quote_products.product_id')
-                        ->join('dealers','products.dealer_id','=','dealers.id')
-                        ->join('categories','products.category_id','=','categories.id')
-                        ->join('customers','quotes.customer_id','=','customers.id');                        
+		/*$info = new ExtraProductInfo;
+        $info->quote_id = $request->quote_id;
+        $info->product_id = $request->product_id;
+        $info->user_id = $request->user_id;
+        $info->depot = $request->quote_depot;
+        $info->hitch = $request->quote_hitch;
+        $info->buckets = $request->quote_bucket;
+        $info->extra = $request->quote_extra;
+        $info->save();*/
+		
+		 $data = Quote::select('quotes.*', 'customers.name as name', 'customers.email as customer_email',
+        'categories.name as category_name',
+        'dealers.name as dealer_name','products.dealer_id as dealer_id',
+        'products.title','products.model','products.year as product_year',
+        'dealers.name as dealer_name','leads.name as lead_name','leads.email as lead_email',
+        'leads.phone','leads.user_id','leads.date as lead_date','leads.status','leads.customer_id as customer_id')
+        ->leftjoin('quote_products','quote_products.quote_id','=','quotes.id')
+        ->leftjoin('products','products.id','=','quote_products.product_id')
+        ->leftjoin('dealers','products.dealer_id','=','dealers.id')
+        ->leftjoin('categories','products.category_id','=','categories.id')
+        ->leftjoin('customers','quotes.customer_id','=','customers.id')  
+        ->leftjoin('leads','leads.id','=','quotes.lead_id')  
+		->groupBy('leads.customer_id')
+	    ->where('leads.user_id',$request->user_id)
+		//->where('leads.customer_id',$request->customer_id)
+        ->where('quotes.sent','1')
+		//->where('leads.status','Quote Send')
+
+        ->get();
+		//DB::update('update leads set status = ? where customer_id = ?', ["Quote Send", $request->customer_id]);
+
+       // $query = Quote::join('leads','quotes.lead_id','=','leads.id')
+                        //->join('quote_products','quote_products.quote_id','=','quotes.id')
+                        //->join('products','products.id','=','quote_products.product_id')
+                        //->join('dealers','products.dealer_id','=','dealers.id')
+                        //->join('categories','products.category_id','=','categories.id')
+                       // ->join('customers','quotes.customer_id','=','customers.id');                        
                         
-        $quotes = $query->select('quotes.*','customers.name as customer_name','customers.email as customer_email','categories.name as category_name','dealers.name as dealer_name','products.dealer_id as dealer_id','products.title','products.model','products.year as product_year','dealers.name as dealer_name','leads.name','leads.email','leads.phone','leads.user_id','leads.date as lead_date','leads.status')
-                        ->groupBy('leads.customer_id')
-                        ->where('leads.user_id',$request->user_id)
-                        ->where('quotes.sent','1')
-                        ->get();
+       // $quotes = $query->select('quotes.*','customers.name as customer_name','customers.email as customer_email','categories.name as category_name','dealers.name as dealer_name','products.dealer_id as dealer_id','products.title','products.model','products.year as product_year','dealers.name as dealer_name','leads.name','leads.email','leads.phone','leads.user_id','leads.date as lead_date','leads.status')
+                       // ->groupBy('leads.customer_id')
+                        //->where('leads.user_id',$request->user_id)
+                        //->where('quotes.sent','1')
+                        //->get();
         
         return response()->json(array(
                                         'status' => 200,
                                         'message'=> 'Success',
                                         'success_message'=>'Get Sent Quote.',
-                                        'data' => $quotes,
+                                        'data' => $data,
                                     ),200);
                                     
                                         
     }
+	
     public function filterSentQuote(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -737,25 +814,48 @@ class QuoteController extends Controller
                                     ),200);
         } 
         
-        $query = Quote::join('leads','quotes.lead_id','=','leads.id')
-                        ->join('quote_products','quote_products.quote_id','=','quotes.id')
-                        ->join('products','products.id','=','quote_products.product_id')
-                        ->join('dealers','products.dealer_id','=','dealers.id')
-                        ->join('categories','products.category_id','=','categories.id')
-                        ->join('customers','quotes.customer_id','=','customers.id');                        
+      //  $query = Quote::join('leads','quotes.lead_id','=','leads.id')
+                       // ->join('quote_products','quote_products.quote_id','=','quotes.id')
+                        //->join('products','products.id','=','quote_products.product_id')
+                       // ->join('dealers','products.dealer_id','=','dealers.id')
+                        //->join('categories','products.category_id','=','categories.id')
+                        //->join('customers','quotes.customer_id','=','customers.id');                        
                         
-        $quotes = $query->select('quotes.*','customers.name as customer_name','customers.email as customer_email','categories.name as category_name','dealers.name as dealer_name','products.dealer_id as dealer_id','products.title','products.model','products.year as product_year','products.hours as product_hours','products.weight as product_weight','products.price as product_price','dealers.name as dealer_name','leads.name','leads.email','leads.phone')
-                        ->groupBy('leads.customer_id')
-                        ->where('leads.user_id',$request->user_id)
-                        ->where('leads.customer_id',$request->customer_id)
-                        ->where('quotes.sent','1')
-                        ->get();
+       // $quotes = $query->select('quotes.*','quotes.id as quotes_id','customers.name as name','customers.email as customer_email','categories.name as category_name','dealers.name as dealer_name','products.dealer_id as dealer_id','products.title','products.model','products.year as product_year','products.hours as product_hours','products.weight as product_weight','products.price as product_price','dealers.name as dealer_name','leads.name','leads.email','leads.phone')
+                    //    ->groupBy('leads.customer_id')
+                      //  ->where('leads.user_id',$request->user_id)
+                        //->where('leads.customer_id',$request->customer_id)
+                        //->where('quotes.sent','1')
+                        //->get();
+		
+		 $data = Quote::select('quotes.*', 'customers.name as name', 'customers.email as customer_email',
+        'categories.name as category_name', 'quotes.id as quotes_id',
+        'dealers.name as dealer_name','products.dealer_id as dealer_id',
+        'products.title','products.id as product_id','products.model','products.year as product_year',
+        'dealers.name as dealer_name','leads.name as lead_name','leads.email as lead_email',
+        'leads.phone','leads.user_id','leads.date as lead_date','leads.status','trade_ins.make as make', 'trade_ins.model as trade_model','trade_ins.year as year',
+        'trade_ins.hours as hours','trade_images.image as trade_image', 'product_extra_info.depot as depot',
+        'product_extra_info.hitch as hitch','product_extra_info.buckets as buckets')
+			 
+        ->leftjoin('quote_products','quote_products.quote_id','=','quotes.id')
+        ->leftjoin('products','products.id','=','quote_products.product_id')
+        ->leftjoin('dealers','products.dealer_id','=','dealers.id')
+        ->leftjoin('categories','products.category_id','=','categories.id')
+        ->leftjoin('customers','quotes.customer_id','=','customers.id')  
+        ->leftjoin('leads','leads.id','=','quotes.lead_id')  
+		->leftJoin("trade_ins", "trade_ins.quote_id", "=", "quotes.id")
+	    ->leftJoin("trade_images", "trade_images.id", "=", "trade_images.trade_id")
+        ->leftJoin("product_extra_info", "product_extra_info.quote_id", "=", "quotes.id")
+	    ->where('leads.user_id',$request->user_id)
+	    ->where('leads.customer_id',$request->customer_id)
+        ->where('quotes.sent','1')
+        ->get();
         
         return response()->json(array(
                                         'status' => 200,
                                         'message'=> 'Success',
                                         'success_message'=>'Get Sent Quote.',
-                                        'data' => $quotes,
+                                        'data' => $data,
                                     ),200);
                                     
                                         
@@ -821,7 +921,7 @@ class QuoteController extends Controller
         } 
 
         $data = Lead::select('customers.*','leads.title as lead_title','leads.name as lead_name','leads.id as lead_id',
-         'quotes.lead_id as lead_idname', 'quote_products.quote_id as quotes_id', 'products.title as product','products.model as model','products.attachment as attachment','quote_products.total_price as price','trade_ins.make as make',)
+         'quotes.lead_id as lead_idname', 'quote_products.quote_id as quotes_id','products.id as product_id', 'products.title as product','products.model as model','products.attachment as attachment','quote_products.total_price as price','trade_ins.make as make',)
 
 
         ->leftJoin("customers", "customers.id", "=", "leads.customer_id")  
@@ -829,6 +929,7 @@ class QuoteController extends Controller
         ->leftJoin("quote_products", "quote_products.quote_id", "=", "quotes.id")                        
         ->leftJoin("products", "quote_products.product_id", "=", "products.id") 
 		->leftJoin("trade_ins", "trade_ins.id", "=", "trade_ins.quote_id")
+		->where('leads.user_id',$request->user_id)
         ->where('leads.customer_id',$request->customer_id)
         ->where('leads.status','In Progress')
         ->get();

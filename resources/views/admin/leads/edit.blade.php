@@ -90,6 +90,8 @@
                               <option value="In Progress" <?php if($result->status == 'In Progress'){echo "selected";} ?>>In Progress</option>
                               <option value="On Hold" <?php if($result->status == 'On Hold'){echo "selected";} ?>>On Hold</option>
                               <option value="Lost" <?php if($result->status == 'Lost'){echo "selected";} ?>>Lost</option>
+							  <option value="Quote Send" <?php if($result->status == 'Quote Send'){echo "selected";} ?>>Quote Send</option>
+
                               <option value="Closed" <?php if($result->status == 'Closed'){echo "selected";} ?>>Closed</option>
                            </select>
                         </div>
